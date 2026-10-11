@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Александр Арюпин — Управление проектами</title>
+<meta name="description" content="Персональная визитка Александра Арюпина, специалиста по управлению проектами.">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --card: rgba(255, 255, 255, 0.03);
+    --border: rgba(255, 255, 255, 0.08);
+    --text: #f5f5f7;
+    --muted: #9a9aa3;
+    --c1: #7c5cff;
+    --c2: #22d3ee;
+    --c3: #f472b6;
+    --tg: #2aabee;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body { height: 100%; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: 24px 16px;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ---------- Фон: звёздное небо ---------- */
+  #stars {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  /* ---------- Фон: сетка + световое пятно за курсором ---------- */
+  .bg-grid {
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse at center, #000 30%, transparent 75%);
+    -webkit-mask-image: radial-gradient(ellipse at center, #000 30%, transparent 75%);
+    pointer-events: none;
+  }
+
+  .spotlight {
+    position: fixed;
+    width: 600px;
+    height: 600px;
+    left: var(--mx, 50%);
+    top: var(--my, 40%);
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, rgba(124, 92, 255, 0.18), rgba(34, 211, 238, 0.06) 40%, transparent 70%);
+    pointer-events: none;
+    transition: left 0.25s ease-out, top 0.25s ease-out;
+    filter: blur(10px);
+  }
+
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.35;
+    pointer-events: none;
+    animation: float 14s ease-in-out infinite;
+  }
+  .orb.one { width: 320px; height: 320px; background: var(--c1); top: -80px; left: -80px; }
+  .orb.two { width: 280px; height: 280px; background: var(--c2); bottom: -90px; right: -60px; animation-delay: -5s; }
+  .orb.three { width: 200px; height: 200px; background: var(--c3); bottom: 20%; left: 10%; opacity: 0.18; animation-delay: -9s; }
+
+  @keyframes float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(40px, 30px) scale(1.08); }
+    66% { transform: translate(-30px, 20px) scale(0.95); }
+  }
+
+  /* ---------- Карточка ---------- */
+  .card-wrap { perspective: 1200px; position: relative; z-index: 1; width: 100%; max-width: 520px; }
+
+  .card {
+    position: relative;
+    padding: 24px 16px;
+    text-align: center;
+    transform-style: preserve-3d;
+    transition: transform 0.15s ease-out;
+    animation: appear 0.9s cubic-bezier(.2,.8,.2,1) both;
+  }
+
+  @keyframes appear {
+    from { opacity: 0; transform: translateY(30px) scale(0.97); }
+    to { opacity: 1; transform: none; }
+  }
+
+  /* ---------- Аватар с инициалами ---------- */
+  .avatar {
+    width: 104px;
+    height: 104px;
+    margin: 0 auto 28px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    position: relative;
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    background: #111114;
+    transform: translateZ(40px);
+  }
+  .avatar::before {
+    content: "";
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    background: conic-gradient(var(--c1), var(--c2), var(--c3), var(--c1));
+    z-index: -1;
+    animation: rotate 5s linear infinite;
+  }
+  .avatar::after {
+    content: "";
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    background: conic-gradient(var(--c1), var(--c2), var(--c3), var(--c1));
+    z-index: -2;
+    filter: blur(18px);
+    opacity: 0.6;
+    animation: rotate 5s linear infinite;
+  }
+  .avatar span {
+    background: linear-gradient(135deg, #fff, #c9c3ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  @keyframes rotate { to { transform: rotate(360deg); } }
+
+  /* ---------- Имя с градиентным свечением ---------- */
+  .name {
+    position: relative;
+    font-size: clamp(32px, 8vw, 44px);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 14px;
+    transform: translateZ(60px);
+  }
+  .name .text,
+  .name .glow {
+    background: linear-gradient(90deg, var(--c1), var(--c2), var(--c3), var(--c1));
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: shimmer 6s linear infinite;
+  }
+  .name .glow {
+    position: absolute;
+    inset: 0;
+    filter: blur(18px);
+    opacity: 0.75;
+    z-index: -1;
+    animation: shimmer 6s linear infinite, pulse 3s ease-in-out infinite;
+  }
+  @keyframes shimmer { to { background-position: 300% 0; } }
+  @keyframes pulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 0.95; }
+  }
+
+  /* ---------- Специализация ---------- */
+  .role {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 15px;
+    margin-bottom: 32px;
+    transform: translateZ(30px);
+  }
+  .role .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #34d399;
+    box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.6);
+    animation: ping 2s infinite;
+  }
+  @keyframes ping {
+    0% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.6); }
+    70% { box-shadow: 0 0 0 8px rgba(52, 211, 153, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
+  }
+
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 0 0 28px;
+  }
+
+  /* ---------- Соцсети ---------- */
+  .socials {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    margin-bottom: 28px;
+    transform: translateZ(30px);
+  }
+  .social {
+    --brand: var(--c1);
+    position: relative;
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    display: grid;
+    place-items: center;
+    color: var(--text);
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    text-decoration: none;
+    transition: transform 0.3s cubic-bezier(.2,.8,.2,1), background 0.3s, border-color 0.3s, box-shadow 0.3s, color 0.3s;
+  }
+  .social svg { width: 26px; height: 26px; transition: transform 0.3s; }
+  .social:hover,
+  .social:focus-visible {
+    transform: translateY(-6px);
+    background: var(--brand);
+    border-color: var(--brand);
+    color: #fff;
+    box-shadow: 0 12px 30px -6px var(--brand);
+    outline: none;
+  }
+  .social:hover svg { transform: scale(1.12) rotate(-8deg); }
+  .social.tg { --brand: var(--tg); }
+
+  /* Всплывающая подсказка */
+  .social .tip {
+    position: absolute;
+    bottom: calc(100% + 10px);
+    left: 50%;
+    transform: translate(-50%, 6px);
+    background: #1b1b20;
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 13px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s, transform 0.2s;
+  }
+  .social:hover .tip,
+  .social:focus-visible .tip { opacity: 1; transform: translate(-50%, 0); }
+
+  /* Кнопка «копировать ник» */
+  .social.copy { --brand: var(--c1); cursor: pointer; font: inherit; }
+
+  /* ---------- Кнопка «Написать мне» ---------- */
+  .cta {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 18px 28px;
+    border-radius: 16px;
+    border: none;
+    font: inherit;
+    font-size: 17px;
+    font-weight: 600;
+    color: #fff;
+    text-decoration: none;
+    cursor: pointer;
+    overflow: hidden;
+    isolation: isolate;
+    background: linear-gradient(90deg, var(--c1), var(--c2), var(--c1));
+    background-size: 200% 100%;
+    animation: btn-flow 4s linear infinite;
+    box-shadow: 0 10px 30px -8px rgba(124, 92, 255, 0.7);
+    transition: transform 0.25s cubic-bezier(.2,.8,.2,1), box-shadow 0.25s;
+    transform: translateZ(50px);
+  }
+  @keyframes btn-flow { to { background-position: 200% 0; } }
+
+  /* Блик, пробегающий по кнопке */
+  .cta::before {
+    content: "";
+    position: absolute;
+    top: 0; left: -75%;
+    width: 50%; height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255,255,255,0.45), transparent);
+    transform: skewX(-20deg);
+    animation: shine 3s ease-in-out infinite;
+    z-index: -1;
+  }
+  @keyframes shine {
+    0%, 60% { left: -75%; }
+    100% { left: 130%; }
+  }
+
+  .cta:hover,
+  .cta:focus-visible {
+    transform: translateZ(50px) translateY(-3px) scale(1.02);
+    box-shadow: 0 18px 40px -8px rgba(34, 211, 238, 0.7);
+    outline: none;
+  }
+  .cta:active { transform: translateZ(50px) scale(0.98); }
+  .cta svg { width: 20px; height: 20px; transition: transform 0.3s; }
+  .cta:hover svg { transform: translateX(4px) rotate(-12deg); }
+
+  /* Волна от клика */
+  .ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.5);
+    transform: scale(0);
+    animation: ripple 0.6s ease-out forwards;
+    pointer-events: none;
+    z-index: -1;
+  }
+  @keyframes ripple { to { transform: scale(4); opacity: 0; } }
+
+  .handle {
+    margin-top: 18px;
+    font-size: 14px;
+    color: var(--muted);
+  }
+  .handle b { color: var(--text); font-weight: 600; }
+
+  /* ---------- Уведомление ---------- */
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: 28px;
+    transform: translate(-50%, 120px);
+    background: #1b1b20;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: 14px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    transition: transform 0.35s cubic-bezier(.2,.8,.2,1);
+    z-index: 10;
+  }
+  .toast.show { transform: translate(-50%, 0); }
+
+  /* ---------- Телефон ---------- */
+  @media (max-width: 480px) {
+    .card { padding: 16px 8px; }
+    .avatar { width: 88px; height: 88px; font-size: 30px; margin-bottom: 22px; }
+    .role { font-size: 14px; margin-bottom: 26px; }
+    .spotlight { display: none; }
+  }
+
+  /* Для тех, кто отключил анимации в системе */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+  <canvas id="stars" aria-hidden="true"></canvas>
+  <div class="bg-grid"></div>
+  <div class="orb one"></div>
+  <div class="orb two"></div>
+  <div class="orb three"></div>
+  <div class="spotlight" id="spotlight"></div>
+
+  <main class="card-wrap">
+    <article class="card" id="card">
+
+      <div class="avatar" aria-hidden="true"><span>АА</span></div>
+
+      <h1 class="name">
+        <span class="text">Александр Арюпин</span>
+        <span class="glow" aria-hidden="true">Александр Арюпин</span>
+      </h1>
+
+      <div class="role">
+        <span class="dot" aria-hidden="true"></span>
+        Управление проектами
+      </div>
+
+      <div class="divider"></div>
+
+      <nav class="socials" aria-label="Контакты">
+        <a class="social tg" href="https://t.me/Sanalexvl" target="_blank" rel="noopener" aria-label="Telegram @Sanalexvl">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M21.94 4.3a1.2 1.2 0 0 0-1.62-1.33L2.9 9.7c-1.15.45-1.12 2.1.05 2.5l4.32 1.47 1.66 5.26c.27.86 1.36 1.13 2 .5l2.4-2.33 4.38 3.22c.8.59 1.94.14 2.14-.83L21.94 4.3Zm-4.06 3.04-7.9 7.13a.6.6 0 0 0-.19.36l-.37 2.86c-.03.2-.31.22-.37.03l-1.17-3.9a.6.6 0 0 1 .26-.68l9.38-5.82c.25-.16.52.18.36.39v-.37Z"/>
+          </svg>
+          <span class="tip">Telegram</span>
+        </a>
+
+        <button class="social copy" id="copyBtn" type="button" aria-label="Скопировать ник в Telegram">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="9" y="9" width="12" height="12" rx="2"/>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+          <span class="tip">Скопировать ник</span>
+        </button>
+      </nav>
+
+      <a class="cta" id="cta" href="https://t.me/Sanalexvl" target="_blank" rel="noopener">
+        Написать мне
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M22 2 11 13"/>
+          <path d="M22 2 15 22l-4-9-9-4 20-7Z"/>
+        </svg>
+      </a>
+
+      <p class="handle">Telegram: <b>@Sanalexvl</b></p>
+    </article>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+  (function () {
+    var card = document.getElementById('card');
+    var spotlight = document.getElementById('spotlight');
+    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var canHover = window.matchMedia('(hover: hover)').matches;
+
+    // Звёздное небо: мерцающие звёзды и изредка падающая звезда
+    (function () {
+      var canvas = document.getElementById('stars');
+      var ctx = canvas.getContext('2d');
+      var colors = ['255,255,255', '200,210,255', '180,230,255', '230,215,255'];
+      var stars = [];
+      var shooting = null;
+      var w, h, dpr;
+
+      function init() {
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        w = window.innerWidth;
+        h = window.innerHeight;
+        canvas.width = w * dpr;
+        canvas.height = h * dpr;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        var count = Math.round((w * h) / 4500);
+        stars = [];
+        for (var i = 0; i < count; i++) {
+          var big = Math.random() < 0.08;
+          stars.push({
+            x: Math.random() * w,
+            y: Math.random() * h,
+            r: big ? Math.random() * 0.8 + 1.1 : Math.random() * 0.9 + 0.3,
+            base: Math.random() * 0.5 + 0.25,
+            speed: Math.random() * 1.5 + 0.5,
+            phase: Math.random() * Math.PI * 2,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            big: big
+          });
+        }
+      }
+
+      function drawStars(t) {
+        for (var i = 0; i < stars.length; i++) {
+          var s = stars[i];
+          var a = reduceMotion ? s.base
+            : s.base + Math.sin(t * 0.001 * s.speed + s.phase) * 0.35;
+          a = Math.max(0.05, Math.min(1, a));
+
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(' + s.color + ',' + a + ')';
+          ctx.fill();
+
+          // У крупных звёзд — мягкое сияние и лучики
+          if (s.big) {
+            var g = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.r * 6);
+            g.addColorStop(0, 'rgba(' + s.color + ',' + a * 0.35 + ')');
+            g.addColorStop(1, 'rgba(' + s.color + ',0)');
+            ctx.fillStyle = g;
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, s.r * 6, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.strokeStyle = 'rgba(' + s.color + ',' + a * 0.4 + ')';
+            ctx.lineWidth = 0.6;
+            ctx.beginPath();
+            ctx.moveTo(s.x - s.r * 5, s.y); ctx.lineTo(s.x + s.r * 5, s.y);
+            ctx.moveTo(s.x, s.y - s.r * 5); ctx.lineTo(s.x, s.y + s.r * 5);
+            ctx.stroke();
+          }
+        }
+      }
+
+      function drawShooting() {
+        if (!shooting && Math.random() < 0.003) {
+          shooting = {
+            x: Math.random() * w * 0.7 + w * 0.2,
+            y: Math.random() * h * 0.4,
+            vx: -(Math.random() * 6 + 7),
+            vy: Math.random() * 3 + 3,
+            life: 1
+          };
+        }
+        if (!shooting) return;
+
+        var s = shooting;
+        var tailX = s.x - s.vx * 10;
+        var tailY = s.y - s.vy * 10;
+        var g = ctx.createLinearGradient(s.x, s.y, tailX, tailY);
+        g.addColorStop(0, 'rgba(255,255,255,' + s.life + ')');
+        g.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.strokeStyle = g;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(s.x, s.y);
+        ctx.lineTo(tailX, tailY);
+        ctx.stroke();
+
+        s.x += s.vx;
+        s.y += s.vy;
+        s.life -= 0.015;
+        if (s.life <= 0 || s.x < -100 || s.y > h + 100) shooting = null;
+      }
+
+      function frame(t) {
+        ctx.clearRect(0, 0, w, h);
+        drawStars(t);
+        drawShooting();
+        requestAnimationFrame(frame);
+      }
+
+      init();
+      var resizeTimer;
+      window.addEventListener('resize', function () {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function () {
+          init();
+          if (reduceMotion) drawStars(0);
+        }, 150);
+      });
+
+      if (reduceMotion) drawStars(0);
+      else requestAnimationFrame(frame);
+    })();
+
+    // Свет за курсором и 3D-наклон карточки (только на устройствах с мышью)
+    if (canHover && !reduceMotion) {
+      document.addEventListener('mousemove', function (e) {
+        spotlight.style.setProperty('--mx', e.clientX + 'px');
+        spotlight.style.setProperty('--my', e.clientY + 'px');
+
+        var r = card.getBoundingClientRect();
+        var x = (e.clientX - (r.left + r.width / 2)) / r.width;
+        var y = (e.clientY - (r.top + r.height / 2)) / r.height;
+        var clamp = function (v) { return Math.max(-1, Math.min(1, v)); };
+        card.style.transform =
+          'rotateY(' + clamp(x) * 8 + 'deg) rotateX(' + clamp(-y) * 8 + 'deg)';
+      });
+
+      document.addEventListener('mouseleave', function () {
+        card.style.transform = '';
+      });
+    }
+
+    // Волна при нажатии на кнопку
+    var cta = document.getElementById('cta');
+    cta.addEventListener('pointerdown', function (e) {
+      var r = cta.getBoundingClientRect();
+      var size = Math.max(r.width, r.height);
+      var ripple = document.createElement('span');
+      ripple.className = 'ripple';
+      ripple.style.width = ripple.style.height = size + 'px';
+      ripple.style.left = (e.clientX - r.left - size / 2) + 'px';
+      ripple.style.top = (e.clientY - r.top - size / 2) + 'px';
+      cta.appendChild(ripple);
+      setTimeout(function () { ripple.remove(); }, 650);
+    });
+
+    // Уведомление
+    var toast = document.getElementById('toast');
+    var toastTimer;
+    function showToast(text) {
+      toast.textContent = text;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(function () { toast.classList.remove('show'); }, 2200);
+    }
+
+    // Копирование ника
+    document.getElementById('copyBtn').addEventListener('click', function () {
+      var nick = '@Sanalexvl';
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(nick)
+          .then(function () { showToast('Ник ' + nick + ' скопирован ✓'); })
+          .catch(fallbackCopy);
+      } else {
+        fallbackCopy();
+      }
+      function fallbackCopy() {
+        var ta = document.createElement('textarea');
+        ta.value = nick;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+          document.execCommand('copy');
+          showToast('Ник ' + nick + ' скопирован ✓');
+        } catch (err) {
+          showToast('Не удалось скопировать: ' + nick);
+        }
+        ta.remove();
+      }
+    });
+  })();
+</script>
+</body>
+</html>
